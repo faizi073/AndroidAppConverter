@@ -66,7 +66,11 @@ app.post('/doc',upload.single('file'),async (req,res)=>
 {
     try {
 
-         await convertWordFiles(`./public/uploads/${filename}`, 'pdf', `./public/converted`)
+
+        uploadAddress= (req.hostname  + `/FTP/uploads/${PDFFileName}`)
+        convertedAddress= (req.hostname  + `/FTP/converted`)
+
+        await convertWordFiles(uploadAddress, 'pdf', convertedAddress)
 
 
         PDFFileName = filename.substr(0, filename.lastIndexOf(".")) + ".pdf";
