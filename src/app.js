@@ -37,12 +37,19 @@ app.post('/doc', upload.single('file'),async (req,res)=> {
     try{
 
     console.log('storage location is ', req.hostname +'/' + req.file.path);
-    await convertWordFiles(path.resolve(__dirname,`../public/uploads/${filename}`), 'pdf',path.resolve(__dirname,`../public/converted`))
+    const pro= await convertWordFiles(path.resolve(__dirname,`../public/uploads/${filename}`), 'pdf',path.resolve(__dirname,`../public/converted`)).then(
+        res.send(req.file)
+    ).catch(
+        err=> res.send(err)
+    )
 
-    return res.send(req.file);
+
+
     }catch(error)
     {
-        res.send(path.resolve(__dirname,`../public/uploads/${filename}`) + " MMAOO NU LUN")
+        res.send({
+            error
+        })
     }
 })
 
