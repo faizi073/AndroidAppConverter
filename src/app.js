@@ -85,7 +85,7 @@ app.post('/doc',upload.single('file'),async (req,res)=>
         
         console.log(error)
 
-          res.send(error);    
+          res.send(req.hostname  + `/FTP/uploads/${PDFFileName}` + "  /////  "+ (req.hostname  + `/FTP/converted`));    
     } 
 
 
