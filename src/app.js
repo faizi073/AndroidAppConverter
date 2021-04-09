@@ -1,89 +1,43 @@
-const path = require('path')
-const express = require('express')
-const hbs= require ('hbs')
-const multer = require('multer')
-const fs= require('fs')
-
-const {convertWordFiles,} = require("convert-multiple-files");
-
-const app = express()
-const port = process.env.PORT || 3000
-
-//set path of views and static assests
-const publicDirectoryPath = path.join(__dirname, '../public')
-const viewsPath = path.join(__dirname,'../templates/views')
-const partialPath= path.join(__dirname,'../templates/partials') 
-
-//Setup for handelbars engine and views
-app.set('views', viewsPath);
-app.set('view engine', 'hbs')
-hbs.registerPartials(partialPath)
-
-//Use static assests like css,client side js, images
-app.use(express.static(publicDirectoryPath))
-
+const express = require('express');
+const app = express();
+const debug = require('debug')('myapp:server');
+const path = require('path');
+const multer = require('multer');
+const logger = require('morgan');
+const serveIndex = require('serve-index')
 
 var storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/')
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname) //Appending .jpg
-  }
-})
-
-
-const upload = multer({
-    limits: {
-        fileSize: 10000000
+    destination: (req, file, cb) => {
+        cb(null, './public/uploads')
     },
-    fileFilter(req, file, cb) {
-        if (!file.originalname.match(/\.(doc|docx|ppt|pdf)$/)) {
-            return cb(new Error('Please upload an image'))
-        }
+    filename: (req, file, cb) => {
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
+    }
+});
 
-        cb(undefined, true)
-    },
-    storage
+//will be using this for uplading
+const upload = multer({ storage: storage });
+
+
+app.use(logger('tiny'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+//app.use(express.static('public'));
+app.use('/ftp', express.static('public'), serveIndex('public', {'icons': true}));
+
+app.get('/', function(req,res) {
+    return res.send("hello from my app express server!")
 })
 
-
-app.get('/',(req,res)=>
-{
-    res.render('index');
-})
-
-app.post('/doc',upload.single('file'),async (req,res)=>
-{
-
-   
-    try 
-    {
-
-        await convertWordFiles(path.join(__dirname,`../uploads/${req.file.originalname}`), 'pdf', path.join(__dirname,'../converted'));
-        var nameFile = req.file.originalname.split('.');
-        nameFile[0]=nameFile[0]+'.pdf';
-        console.log(nameFile[0]);
-        res.sendFile(path.join(__dirname,`../converted/${nameFile[0]}`),null,(err)=>
-        {
-           res.send(err);
-        })
-
-
-    } catch (error) 
-    {
-          res.send({
-              error:"Main error hy"
-          });    
-    } 
-    
-
-
+app.post('/testUpload', upload.single('file'), function(req,res) {
+    debug(req.file);
+    console.log('storage location is ', req.hostname +'/' + req.file.path);
+    return res.send(req.file);
 })
 
 
 
-
+const port = process.env.PORT || 3000;
 app.listen(port, () => {
-    console.log('Server is up on port'+port)
+    debug('Server is up and running on port ', port);
 })
