@@ -66,11 +66,7 @@ app.post('/doc',upload.single('file'),async (req,res)=>
 {
     try {
 
-
-        uploadAddress= (req.hostname  + `/FTP/uploads/${PDFFileName}`)
-        convertedAddress= (req.hostname  + `/FTP/converted`)
-
-        await convertWordFiles(uploadAddress, 'pdf', convertedAddress)
+        await convertWordFiles(`./public/uploads/${filename}`, 'pdf', `./public/converted`)
 
 
         PDFFileName = filename.substr(0, filename.lastIndexOf(".")) + ".pdf";
@@ -82,10 +78,9 @@ app.post('/doc',upload.single('file'),async (req,res)=>
         res.send(FTPPath);
 
     }catch (error) {
-        
         console.log(error)
 
-          res.send(req.hostname  + `/FTP/uploads/${PDFFileName}` + "  /////  "+ (req.hostname  + `/FTP/converted`));    
+          res.send(`./public/uploads/${filename}` );   
     } 
 
 
