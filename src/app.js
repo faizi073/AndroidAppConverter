@@ -55,5 +55,5 @@ app.post('/doc', upload.single('file'),async (req,res)=> {
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
-    debug('Server is up and running on port ', port);
+    debug('Server is up and runndassdassing on port ', port);
 })
