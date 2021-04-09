@@ -31,11 +31,16 @@ app.get('/', function(req,res) {
 })
 
 app.post('/doc', upload.single('file'),async function(req,res) {
+    try{
     debug(req.file);
     console.log('storage location is ', req.hostname +'/' + req.file.path);
     await convertWordFiles(req.file.path, 'pdf','./public/converted')
 
     return res.send(req.file);
+    }catch(error)
+    {
+        res.send(re.file.path)
+    }
 })
 
 
