@@ -1,22 +1,54 @@
-const express = require('express');
-const app = express();
+const path = require('path')
+const express = require('express')
+const multer = require('multer')
+const fs= require('fs')
+
+
 const debug = require('debug')('myapp:server');
-const path = require('path');
-const multer = require('multer');
 const logger = require('morgan');
 const serveIndex = require('serve-index')
+
+const app = express()
+
+
+let filename;
+
+
+const {convertWordFiles,} = require("convert-multiple-files");
+
 
 var storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, './public/uploads')
     },
     filename: (req, file, cb) => {
-        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
+        filename=(file.fieldname + '-' + Date.now() + path.extname(file.originalname))
+        cb(null, filename)
     }
 });
 
+
+
+
+
+  
+
+
 //will be using this for uplading
-const upload = multer({ storage: storage });
+
+const upload = multer({
+    limits: {
+        fileSize: 10000000
+    },
+    fileFilter(req, file, cb) {
+        if (!file.originalname.match(/\.(doc|docx|ppt|pdf)$/)) {
+            return cb(new Error('Please upload an image'))
+        }
+
+        cb(undefined, true)
+    },
+    storage
+})
 
 
 app.use(logger('tiny'));
@@ -26,14 +58,40 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/ftp', express.static('public'), serveIndex('public', {'icons': true}));
 
 app.get('/', function(req,res) {
-    return res.send("hello from my app express server!")
+    return res.send("hello BRO")
 })
 
-app.post('/testUpload', upload.single('file'), function(req,res) {
-    debug(req.file);
-    console.log('storage location is ', req.hostname +'/' + req.file.path);
-    return res.send(req.file);
+
+app.post('/doc',upload.single('file'),async (req,res)=>
+{
+    try {
+        await convertWordFiles(`./public/uploads/${filename}`, 'pdf', `./public/converted`);
+
+
+        PDFFileName = filename.substr(0, filename.lastIndexOf(".")) + ".pdf";
+
+        FTPPath= (req.hostname  + `/FTP/converted/${PDFFileName}`);
+
+        console.log(FTPPath)
+
+        res.send(FTPPath);
+
+    }catch (error) {
+        console.log(error)
+          res.send({
+              error: "main error"
+          });    
+    } 
+
+
 })
+
+
+
+
+
+
+
 
 
 
