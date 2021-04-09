@@ -39,7 +39,7 @@ app.post('/doc', upload.single('file'),function(req,res) {
     return res.send(req.file);
     }catch(error)
     {
-        res.send(req.file.path + "   HERREEE")
+        res.send("   HERREEE")
     }
 })
 
