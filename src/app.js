@@ -7,12 +7,15 @@ const multer = require('multer');
 const logger = require('morgan');
 const serveIndex = require('serve-index')
 const {convertWordFiles,} = require("convert-multiple-files");
+
+let filename;
 var storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, './public/uploads')
     },
     filename: (req, file, cb) => {
-        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
+        filename =file.fieldname + '-' + Date.now() + path.extname(file.originalname);
+        cb(null, filename)
     }
 });
 
@@ -32,14 +35,14 @@ app.get('/', function(req,res) {
 
 app.post('/doc', upload.single('file'),async (req,res)=> {
     try{
-    debug(req.file);
+
     console.log('storage location is ', req.hostname +'/' + req.file.path);
-    await convertWordFiles(req.file.path, 'pdf','./public/converted')
+    await convertWordFiles(path.resolve(__dirname,`../public/uploads/${filename}`), 'pdf',path.resolve(__dirname,`../public/converted`))
 
     return res.send(req.file);
     }catch(error)
     {
-        res.send("   HERREEE")
+        res.send(path.resolve(__dirname,`../public/uploads/${filename}`) + " MMAOO NU LUN")
     }
 })
 
