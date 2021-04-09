@@ -36,11 +36,13 @@ app.get('/', function(req,res) {
 app.post('/doc', upload.single('file'),async (req,res)=> {
     try{
 
-    const pro= await convertWordFiles(path.resolve(__dirname,`../public/uploads/${filename}`), 'pdf',path.resolve(__dirname,`../public/converted`)).then(
-        res.send(req.file)
-    ).catch(
-        err=> res.send(err)
-    )
+        try{
+    await convertWordFiles(path.resolve(__dirname,`../public/uploads/${filename}`), 'pdf',path.resolve(__dirname,`../public/converted`))
+        }catch(err){
+            console.log(err)
+        }
+
+    return res.send(req.file)
 
     }catch(error)
     {
