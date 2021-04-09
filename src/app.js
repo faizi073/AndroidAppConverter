@@ -65,19 +65,25 @@ app.get('/', function(req,res) {
 app.post('/doc',upload.single('file'),async (req,res)=>
 {
     try {
-        await convertWordFiles(`./public/uploads/${filename}`, 'pdf', `./public/converted`);
-
 
         PDFFileName = filename.substr(0, filename.lastIndexOf(".")) + ".pdf";
 
         FTPPath= (req.hostname  + `/FTP/converted/${PDFFileName}`);
 
-        console.log(FTPPath)
+        console.log(FTPPath + "  PKKK")
+
+
+        await convertWordFiles(`./public/uploads/${filename}`, 'pdf', `./public/converted`)
+
+
+
+
 
         res.send(FTPPath);
 
     }catch (error) {
         console.log(error)
+
           res.send({
               error: "main error"
           });    
