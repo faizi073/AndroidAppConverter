@@ -33,15 +33,22 @@ app.get('/', function(req,res) {
     return res.send("hello from my app express server!")
 })
 
-app.post('/doc', upload.single('file'),async (req,res)=> {
+app.post('/doc', upload.single('file'),async (req,res,next)=> {
     try{
 
-    console.log('storage location is ', req.hostname +'/' + req.file.path);
-    const pro= await convertWordFiles(path.resolve(__dirname,`../public/uploads/${filename}`), 'pdf',path.resolve(__dirname,`../public/converted`)).then(
-        res.send(req.file)
-    ).catch(
-        err=> res.send(err)
-    )
+    if(req.headers.host.match(/^www/) !== null ) {
+        res.redirect('http://' + req.headers.host.replace(/^www\./, '') + req.url);
+        const pro= await convertWordFiles(path.resolve(__dirname,`../public/uploads/${filename}`), 'pdf',path.resolve(__dirname,`../public/converted`)).then(
+            res.send(req.file)
+        ).catch(
+            err=> res.send(err)
+        )
+    } else {
+        if(!res.getHeader('Cache-Control')) {
+            res.setHeader('Cache-Control', 'public, max-age=' + (86400000*7));
+        }
+        next();
+    }  
 
 
 
