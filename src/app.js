@@ -16,6 +16,12 @@ let filename;
 
 const {convertWordFiles,} = require("convert-multiple-files");
 
+//set path of views and static assests
+const publicDirectoryPath = path.join(__dirname, '../public')
+
+//Use static assests like css,client side js, images
+app.use(express.static(publicDirectoryPath))
+
 
 var storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -69,6 +75,7 @@ app.post('/doc',upload.single('file'),async (req,res)=>
 
         console.log(path.join(__dirname,`../public/uploads/${filename}`) + "  Y1122")
 
+        console.log(__filename + "HERE")
         await convertWordFiles(path.join(__dirname,`../public/uploads/${filename}`), 'pdf', path.join(__dirname,'../public/converted'))
 
 
@@ -83,7 +90,7 @@ app.post('/doc',upload.single('file'),async (req,res)=>
     }catch (error) {
 
         console.log(error + "HERE")
-          res.send(path.join(__dirname,`../public/uploads/${filename}`) + "  FINAL BUG HERE") 
+          res.send(__filename + "  ///  "+ __dirname )
     } 
 
 
